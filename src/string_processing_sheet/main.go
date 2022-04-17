@@ -19,6 +19,19 @@ func NewCards() *Cards {
 	}
 }
 
+func (c *Cards) Remove() {
+	fmt.Println("Which card?")
+	reader := bufio.NewReader(os.Stdin)
+	input, _ := reader.ReadString('\n')
+	input = strings.TrimSpace(input)
+	if _, ok := c.data[input]; ok {
+		delete(c.data, input)
+		fmt.Println("The card has been removed.")
+		return
+	}
+	fmt.Printf("Can't remove \"%v\": there is no such card.\n", input)
+}
+
 func (c *Cards) Add() {
 	// capture term from user
 	reader := bufio.NewReader(os.Stdin)
@@ -26,7 +39,7 @@ func (c *Cards) Add() {
 	term, _ := reader.ReadString('\n')
 	term = strings.TrimSpace(term)
 	for c.data[term] != "" {
-		fmt.Printf("The term \"%v\" already exists. Try again:\n", term)
+		fmt.Printf("The card \"%v\" already exists. Try again:\n", term)
 		line, _ := reader.ReadString('\n')
 		term = strings.TrimSpace(line)
 	}
@@ -67,7 +80,10 @@ func main() {
 		switch input {
 		case "add":
 			cards.Add()
+		case "remove":
+			cards.Remove()
 		case "exit":
+			fmt.Println("Bye bye!")
 			return
 		}
 	}

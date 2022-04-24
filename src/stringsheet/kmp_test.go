@@ -47,3 +47,42 @@ func TestComputeKMPLPS(t *testing.T) {
 		})
 	}
 }
+
+func TestKMPMatch(t *testing.T) {
+	testCases := []struct {
+		name         string
+		inputPattern string
+		inputText    string
+		exp          []int
+		expErr       error
+	}{
+		{"empty pattern", "", "tst", nil, EmptyPatternErr},
+		{"empty text", "test", "", nil, EmptyTextErr},
+		{"match found 1", "aabaab", "aabaabaab", []int{0, 3}, nil},
+		{"match found 2", "ABABCABAB", "ABABDABACDABABCABAB", []int{10}, nil},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			actual, err := KMPMatch(tc.inputPattern, tc.inputText)
+			if tc.expErr != nil {
+				if err == nil {
+					t.Errorf("expected error %v, but got nil instead", tc.expErr)
+				}
+				if err != tc.expErr {
+					t.Errorf("expected error %v, but got %v instead", tc.expErr, err)
+				}
+				if actual != nil {
+					t.Errorf("expected nil, but got %v instead", actual)
+				}
+				return
+			}
+			if err != nil {
+				t.Errorf("expected nil error, but got %v instead", err)
+			}
+			if !reflect.DeepEqual(actual, tc.exp) {
+				t.Errorf("expected %v, but got %v instead", tc.exp, actual)
+			}
+		})
+	}
+}

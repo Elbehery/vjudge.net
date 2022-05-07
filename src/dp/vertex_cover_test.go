@@ -32,6 +32,12 @@ func TestGraph_VertexCoverNaive(t *testing.T) {
 			[]int{0, 4},
 		},
 		{
+			"graphFour",
+			testGraph_Four(),
+			GraphDisconnectedErr,
+			nil,
+		},
+		{
 			"emptyGraph",
 			testGraph_Empty(),
 			EmptyGraphErr,
@@ -44,7 +50,7 @@ func TestGraph_VertexCoverNaive(t *testing.T) {
 			actual, err := tc.input.VertexCoverNaive()
 			if tc.expErr != nil {
 				if err == nil {
-					t.Errorf("expected error %v, but got nil instead", err)
+					t.Errorf("expected error %v, but got nil instead", tc.expErr)
 				}
 				if err != tc.expErr {
 					t.Errorf("expected error %v, but got %v instead", tc.expErr, err)
@@ -87,6 +93,12 @@ func TestGraph_IsTree(t *testing.T) {
 		{
 			"graphThree",
 			testGraph_Three(),
+			nil,
+			false,
+		},
+		{
+			"graphFour",
+			testGraph_Four(),
 			nil,
 			false,
 		},
@@ -152,6 +164,15 @@ func testGraph_Three() *Graph {
 	g.AddEdge(3, 2)
 	g.AddEdge(1, 4)
 	g.AddEdge(4, 5)
+
+	return g
+}
+
+func testGraph_Four() *Graph {
+	g := NewGraph(5)
+	g.AddEdge(2, 1)
+	g.AddEdge(1, 3)
+	g.AddEdge(1, 4)
 
 	return g
 }

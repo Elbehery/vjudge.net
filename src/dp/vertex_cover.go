@@ -5,7 +5,10 @@ import (
 	"fmt"
 )
 
-var EmptyGraphErr = errors.New("graph is empty")
+var (
+	EmptyGraphErr        = errors.New("graph is empty")
+	GraphDisconnectedErr = errors.New("graph is disconnected")
+)
 
 type Graph struct {
 	AdjList [][]int
@@ -36,10 +39,8 @@ func (g *Graph) AddEdge(u, w int) error {
 }
 
 func (g *Graph) VertexCoverNaive() ([]int, error) {
-	for i := range g.AdjList {
-		if len(g.AdjList[i]) <= 0 {
-			return nil, EmptyGraphErr
-		}
+	if g.isEmpty() {
+		return nil, EmptyGraphErr
 	}
 
 	res := []int{}
@@ -47,7 +48,7 @@ func (g *Graph) VertexCoverNaive() ([]int, error) {
 
 	// visit the graph and create the result
 	for i, l := range g.AdjList {
-		if visited[i] {
+		if visited[i] || len(l) <= 0 {
 			continue
 		}
 		res = append(res, i)
@@ -56,14 +57,17 @@ func (g *Graph) VertexCoverNaive() ([]int, error) {
 			visited[v] = true
 		}
 	}
+
+	if len(visited) < len(g.AdjList) {
+		return nil, GraphDisconnectedErr
+	}
+
 	return res, nil
 }
 
 func (g *Graph) IsTree() (bool, error) {
-	for i := range g.AdjList {
-		if len(g.AdjList[i]) <= 0 {
-			return false, EmptyGraphErr
-		}
+	if g.isEmpty() {
+		return false, EmptyGraphErr
 	}
 
 	visited := map[int]bool{}
@@ -96,4 +100,15 @@ func (g *Graph) isCyclic(curVertex, parentVertex int, visited map[int]bool) bool
 		}
 	}
 	return false
+}
+
+func (g *Graph) isEmpty() bool {
+	emptyFlag := true
+	for i := range g.AdjList {
+		if len(g.AdjList[i]) > 0 {
+			emptyFlag = false
+			break
+		}
+	}
+	return emptyFlag
 }

@@ -11,6 +11,7 @@ type Graph struct {
 	AdjList [][]int
 }
 
+// NewGraph initialize the graph as disconnected
 func NewGraph(vertices int) *Graph {
 	adjList := make([][]int, vertices)
 	for i := range adjList {
@@ -19,6 +20,7 @@ func NewGraph(vertices int) *Graph {
 	return &Graph{adjList}
 }
 
+// AddEdge created undirected edge between u and w
 func (g *Graph) AddEdge(u, w int) error {
 	if u <= 0 || u > len(g.AdjList) {
 		return fmt.Errorf("vertix %v can not be less than 1 or greater than %v", u, len(g.AdjList))
@@ -34,12 +36,15 @@ func (g *Graph) AddEdge(u, w int) error {
 }
 
 func (g *Graph) VertexCoverNaive() ([]int, error) {
+	for i := range g.AdjList {
+		if len(g.AdjList[i]) <= 0 {
+			return nil, EmptyGraphErr
+		}
+	}
+
 	res := []int{}
 	visited := map[int]bool{}
 
-	if len(g.AdjList) <= 0 {
-		return nil, EmptyGraphErr
-	}
 	// visit the graph and create the result
 	for i, l := range g.AdjList {
 		if visited[i] {
@@ -52,4 +57,37 @@ func (g *Graph) VertexCoverNaive() ([]int, error) {
 		}
 	}
 	return res, nil
+}
+
+func (g *Graph) IsTree() bool {
+	visited := map[int]bool{}
+	if g.isCyclic(0, -1, visited) {
+		return false
+	}
+
+	for i := range g.AdjList {
+		if _, ok := visited[i]; !ok {
+			return false
+		}
+	}
+
+	return true
+}
+
+func (g *Graph) isCyclic(curVertex, parentVertex int, visited map[int]bool) bool {
+	// visit the current vertex
+	visited[curVertex] = true
+
+	// iterate over neighbours in DFS and check if subgraph contains cycle
+	for _, neighbour := range g.AdjList[curVertex] {
+		_, ok := visited[neighbour]
+		if ok && neighbour != parentVertex {
+			return true
+		} else if !ok {
+			if g.isCyclic(neighbour, curVertex, visited) {
+				return true
+			}
+		}
+	}
+	return false
 }

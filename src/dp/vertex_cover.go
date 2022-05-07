@@ -59,19 +59,25 @@ func (g *Graph) VertexCoverNaive() ([]int, error) {
 	return res, nil
 }
 
-func (g *Graph) IsTree() bool {
+func (g *Graph) IsTree() (bool, error) {
+	for i := range g.AdjList {
+		if len(g.AdjList[i]) <= 0 {
+			return false, EmptyGraphErr
+		}
+	}
+
 	visited := map[int]bool{}
 	if g.isCyclic(0, -1, visited) {
-		return false
+		return false, nil
 	}
 
 	for i := range g.AdjList {
 		if _, ok := visited[i]; !ok {
-			return false
+			return false, nil
 		}
 	}
 
-	return true
+	return true, nil
 }
 
 func (g *Graph) isCyclic(curVertex, parentVertex int, visited map[int]bool) bool {
